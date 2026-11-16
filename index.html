@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<meta name="theme-color" content="#D0161E">
 <title>Amigo Secreto da Família</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +22,8 @@
   dialog::-webkit-scrollbar-track { margin-block: 22px; }
   @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: #cfcfcf transparent; } }
 
-  body { margin: 0; font: 500 16px/1.5 "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  html { background: var(--red); }
+  body { margin: 0; min-height: 100vh; font: 500 16px/1.5 "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
   main { max-width: 960px; margin: 0 auto; padding: 0 24px 64px; }
   h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 900; letter-spacing: -.02em; }
   h3 { margin: 0 0 8px; font-size: 1.15rem; font-weight: 800; }
@@ -37,6 +39,12 @@
   .pilula { font-size: 1.15rem; padding: 16px 30px; }
   input, select, textarea { font: inherit; width: 100%; padding: 12px 14px; border: 2px solid transparent; border-radius: 12px; background: var(--campo); color: var(--ink); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ink); background: #fff; }
+  input[type=date], input[type=time] { min-height: 52px; }
+  .check { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 8px 0 0; cursor: pointer; }
+  .check input { width: 20px; height: 20px; padding: 0; flex: none; accent-color: var(--ink); }
+  .prefixo { position: relative; }
+  .prefixo span { position: absolute; left: 16px; top: 50%; translate: 0 -50%; font-weight: 600; pointer-events: none; }
+  .prefixo input { padding-left: 46px; }
   textarea { min-height: 90px; resize: vertical; }
 
   @supports (appearance: base-select) {
@@ -49,8 +57,8 @@
     option { justify-content: center; padding: 8px 4px; border-radius: 999px; background: var(--chip); font-weight: 600; cursor: pointer; }
     option::checkmark { display: none; }
     option[hidden] { display: none; }
-    #perfilSel:open::picker(select) { grid-template-columns: 1fr; }
-    #perfilSel option { justify-content: flex-start; padding: 10px 16px; }
+    #perfilSel:open::picker(select), #apagarSel:open::picker(select) { grid-template-columns: 1fr; }
+    #perfilSel option, #apagarSel option { justify-content: flex-start; padding: 10px 16px; }
     option:hover, option:focus-visible { background: #e2e2e2; outline: none; }
     option:checked { background: var(--ink); color: #fff; }
   }
@@ -133,7 +141,9 @@
   .olho { flex: none; width: 48px; height: 48px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .18); color: #fff; }
   .olho:hover { background: rgba(255, 255, 255, .3); }
   .olho .ic { width: 26px; height: 26px; margin: 0; }
-  .vazio { text-align: center; padding: 40px 16px; color: var(--muted); grid-column: 1 / -1; }
+  .divisa { grid-column: 1 / -1; margin: 4px 0; }
+  .pares { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .card hr { margin: 6px 0; }
   .rodape { text-align: center; margin-top: 40px; }
   .sprite { position: absolute; }
   hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
@@ -219,8 +229,8 @@
     <svg class="caixa" aria-hidden="true"><use href="#caixa"/></svg>
   </div>
   <main>
+    <p class="ola"><strong>Boas-vindas, <span id="olaNome"></span>! 👋</strong><button type="button" class="link" id="btnSair">Não é você? Sair</button></p>
     <h1 class="titulo">Amigo secreto</h1>
-    <p class="ola"><strong>Boas-vindas, <span id="olaNome"></span>! 👋</strong></p>
     <ul class="lista-ic" id="evento" hidden></ul>
     <p class="muted">Tamanhos e dicas de presente de cada um.</p>
     <div class="topo">
@@ -248,7 +258,10 @@
     </div>
     <div class="linha">
       <div><label for="f-camisa">Camisa</label><select id="f-camisa" name="camisa"></select></div>
-      <div><label for="f-sapato">Sapato</label><select id="f-sapato" name="sapato"></select></div>
+      <div>
+        <label for="f-sapato">Sapato</label><select id="f-sapato" name="sapato"></select>
+        <label class="check"><input type="checkbox" id="f-sapatoDuplo" name="sapatoDuplo"> Dois números (ex.: 40/41)</label>
+      </div>
       <div><label for="f-calcaNum">Calça (número)</label><select id="f-calcaNum" name="calcaNum"></select></div>
       <div><label for="f-calcaLetra">Calça (letra)</label><select id="f-calcaLetra" name="calcaLetra"></select></div>
     </div>
@@ -307,21 +320,24 @@
     <h2>Cantinho do organizador</h2>
     <form id="eventoForm">
       <h3>A festa</h3>
-      <label for="e-data">Quando?</label>
-      <input id="e-data" name="data" maxlength="40" placeholder="24/12 às 20h">
+      <div class="linha">
+        <div><label for="e-dia">Dia</label><input type="date" id="e-dia" name="dia"></div>
+        <div><label for="e-hora">Horário</label><input type="time" id="e-hora" name="hora"></div>
+      </div>
       <label for="e-local">Onde?</label>
       <input id="e-local" name="local" maxlength="80" placeholder="Casa da vó">
       <label for="e-valor">Valor do presente</label>
-      <input id="e-valor" name="valor" maxlength="20" placeholder="R$ 100">
+      <div class="prefixo"><span aria-hidden="true">R$</span><input id="e-valor" name="valor" inputmode="numeric" maxlength="7" placeholder="100"></div>
       <div class="botoes"><button>Salvar</button></div>
     </form>
     <hr>
     <h3>Sorteio (opcional)</h3>
     <p id="sorteioStatus"></p>
-    <p class="muted peq">Cada um vê em "Meu perfil". Mudou a lista? Sorteie de novo.</p>
+    <p class="muted peq">Cada um vê em "Ver quem eu tirei". Mudou a lista? Sorteie de novo.</p>
     <div class="botoes">
       <button type="button" id="btnSortear">Sortear 🎲</button>
       <button type="button" class="sec" id="btnDesfazer">Desfazer</button>
+      <button type="button" class="sec" id="btnTeste">Sorteio teste 🧪</button>
     </div>
     <hr>
     <h3>Tirar da lista</h3>
@@ -330,6 +346,21 @@
     <div class="botoes"><button type="button" class="sec" id="btnApagar">Remover</button></div>
     <p class="erro" id="adminErro"></p>
     <div class="botoes"><button type="button" class="sec" data-fechar>Fechar</button></div>
+  </div>
+  <div id="testePainel" hidden>
+    <h2>Sorteio teste 🧪</h2>
+    <p class="muted peq">Só você vê. O sorteio de verdade não muda.</p>
+    <div class="card">
+      <ul class="pares" id="testePares"></ul>
+      <hr>
+      <ul class="pares" id="testeRegras"></ul>
+    </div>
+    <p class="muted peq">Gere outro e veja os pares mudarem.</p>
+    <p class="erro" id="testeErro"></p>
+    <div class="botoes">
+      <button type="button" id="btnTesteOutro">Gerar outro 🎲</button>
+      <button type="button" class="sec" id="btnTesteVoltar">Voltar</button>
+    </div>
   </div>
 </dialog>
 
@@ -440,7 +471,19 @@ document.querySelectorAll('input.pin').forEach((inp) => {
   pintar();
 });
 
-const opcoes = (id, vals) => { $(id).innerHTML = ['<option value="" hidden>—</option>', ...vals.map((v) => `<option>${v}</option>`)].join(''); };
+const opcoes = (id, vals) => { $(id).innerHTML = ['<option value="" hidden>—</option>', ...vals.map((v) => `<option value="${v}">${v}</option>`)].join(''); };
+const rotuloSapato = (v, duplo) => (duplo ? `${v}/${+v + 1}` : v);
+const pintarSapato = () => {
+  for (const o of $('f-sapato').options) if (o.value) o.textContent = rotuloSapato(o.value, $('f-sapatoDuplo').checked);
+};
+$('f-sapatoDuplo').addEventListener('change', pintarSapato);
+const quando = ({ dia, hora, data }) => {
+  if (!dia && !hora) return data;
+  const [, m, d] = (dia || '').split('-');
+  const [h, min] = (hora || '').split(':');
+  return [dia && `${d}/${m}`, hora && `às ${+h}h${min === '00' ? '' : min}`].filter(Boolean).join(' ');
+};
+const reais = (v) => (/^\d+$/.test(v) ? 'R$ ' + Number(v).toLocaleString('pt-BR') : v);
 const faixa = (de, ate, passo = 1) => Array.from({ length: Math.floor((ate - de) / passo) + 1 }, (_, i) => String(de + i * passo));
 const INFANTIL = faixa(2, 16, 2);
 opcoes('f-camisa', [...INFANTIL, 'PP', 'P', 'M', 'G', 'GG', 'XG', 'XGG', 'EG', 'EGG']);
@@ -482,7 +525,7 @@ function mostrarQuem() {
 
 function cardPessoa(p) {
   const calca = [p.calcaNum, p.calcaLetra].filter(Boolean).join(' / ');
-  const chips = [p.camisa && 'Camisa ' + p.camisa, calca && 'Calça ' + calca, p.sapato && 'Sapato ' + p.sapato].filter(Boolean);
+  const chips = [p.camisa && 'Camisa ' + p.camisa, calca && 'Calça ' + calca, p.sapato && 'Sapato ' + rotuloSapato(p.sapato, p.sapatoDuplo)].filter(Boolean);
   return `<article class="card">
       <h3>${esc(p.nome)}</h3>
       ${chips.length ? `<div class="chips">${chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
@@ -493,14 +536,15 @@ function cardPessoa(p) {
 
 function render() {
   const { pessoas, evento } = dados;
-  const partes = evento ? [['i-cal', evento.data], ['i-local', evento.local], ['i-dinheiro', evento.valor && 'Valor: ' + evento.valor]].filter(([, t]) => t) : [];
+  const partes = evento ? [['i-cal', quando(evento)], ['i-local', evento.local], ['i-dinheiro', evento.valor && 'Valor: ' + reais(evento.valor)]].filter(([, t]) => t) : [];
   $('evento').hidden = !partes.length;
   $('evento').innerHTML = partes.map(([i, t]) => `<li><svg class="ic" aria-hidden="true"><use href="#${i}"/></svg>${esc(t)}</li>`).join('');
   $('olaNome').textContent = euPessoa.nome;
   $('btnAmigo').hidden = !dados.sorteioFeito;
   $('btnPerfil').className = dados.sorteioFeito ? 'sec' : '';
   $('contagem').textContent = pessoas.length + (pessoas.length === 1 ? ' pessoa na brincadeira' : ' pessoas na brincadeira');
-  $('lista').innerHTML = pessoas.length ? pessoas.map(cardPessoa).join('') : '<p class="vazio">Lista vazia. Seja a primeira pessoa! 🎁</p>';
+  const outros = pessoas.filter((p) => p.id !== euPessoa.id);
+  $('lista').innerHTML = cardPessoa(euPessoa) + (outros.length ? '<hr class="divisa">' : '') + outros.map(cardPessoa).join('');
 }
 
 function mostrarAviso(el, msg) {
@@ -525,8 +569,8 @@ const marcarPin = (msg) => marcarCampo($('f-pin'), $('f-pin').parentElement, $('
 const marcarNome = (msg) => marcarCampo($('f-nome'), $('f-nome'), $('nomeAviso'), msg);
 const marcarDica = (msg) => marcarCampo($('f-sugestoes'), $('f-sugestoes'), $('dicaAviso'), msg);
 
-async function checarPin() {
-  const msg = await problemaPin($('f-pin').value);
+function checarPin() {
+  const msg = problemaPin($('f-pin').value);
   marcarPin(msg);
   return !msg;
 }
@@ -567,6 +611,8 @@ function abrirForm(p, pin) {
   const f = $('form');
   f.reset();
   for (const k of CAMPOS_DADOS) f.elements[k].value = p?.[k] || '';
+  $('f-sapatoDuplo').checked = !!p?.sapatoDuplo;
+  pintarSapato();
   $('pinNovo').hidden = !!p;
   $('formCancelar').textContent = p ? 'Cancelar' : 'Voltar';
   $('f-pin').required = !p;
@@ -599,7 +645,7 @@ $('form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const body = Object.fromEntries(new FormData(e.target));
   if (!checarNome()) return $('f-nome').focus();
-  if (!editando && !(await checarPin())) {
+  if (!editando && !checarPin()) {
     pinTocado = true;
     return $('f-pin').focus();
   }
@@ -634,6 +680,7 @@ $('lockForm').addEventListener('submit', async (e) => {
   }
 });
 
+$('btnSair').addEventListener('click', mostrarQuem);
 $('btnNovo').addEventListener('click', () => abrirForm(null));
 $('btnJaEstou').addEventListener('click', () => {
   $('quemEscolha').hidden = true;
@@ -704,7 +751,8 @@ async function admin(op, extra = {}) {
 
 function preencherAdmin() {
   const evento = dados.evento || {};
-  for (const k of ['data', 'local', 'valor']) $('eventoForm').elements[k].value = evento[k] || '';
+  for (const k of ['dia', 'hora', 'local']) $('eventoForm').elements[k].value = evento[k] || '';
+  $('e-valor').value = String(evento.valor || '').replace(/\D/g, '');
   $('apagarSel').innerHTML = dados.pessoas.map((p) => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('');
 }
 
@@ -722,6 +770,7 @@ const acao = (fn) => async () => {
 $('btnAdmin').addEventListener('click', () => {
   $('adminLogin').hidden = false;
   $('adminPainel').hidden = true;
+  $('testePainel').hidden = true;
   $('adminLoginErro').textContent = '';
   $('adminPin').value = '';
   $('adminPin').dispatchEvent(new Event('input'));
@@ -759,9 +808,40 @@ $('btnDesfazer').addEventListener('click', acao(async () => {
   if (confirm('Apagar o sorteio?')) await admin('desfazer');
 }));
 
+$('e-valor').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+
+async function sorteioTeste() {
+  $('adminErro').textContent = '';
+  $('testeErro').textContent = '';
+  try {
+    const { teste } = await admin('teste');
+    const de = teste.map((t) => t.de);
+    const para = teste.map((t) => t.para);
+    const regras = [
+      [teste.every((t) => t.de !== t.para), 'Ninguém tirou a si mesmo'],
+      [new Set(para).size === teste.length, 'Ninguém foi tirado duas vezes'],
+      [para.every((n) => de.includes(n)), 'Todo mundo foi tirado'],
+    ];
+    $('testePares').innerHTML = teste.map((t) => `<li><strong>${esc(t.de)}</strong> tirou <strong>${esc(t.para)}</strong></li>`).join('');
+    $('testeRegras').innerHTML = regras.map(([ok, txt]) => `<li>${ok ? '✅' : '❌'} ${txt}</li>`).join('');
+    $('adminPainel').hidden = true;
+    $('testePainel').hidden = false;
+  } catch (err) {
+    ($('testePainel').hidden ? $('adminErro') : $('testeErro')).textContent = err.message;
+  }
+}
+
+$('btnTeste').addEventListener('click', sorteioTeste);
+$('btnTesteOutro').addEventListener('click', sorteioTeste);
+$('btnTesteVoltar').addEventListener('click', () => {
+  $('testePainel').hidden = true;
+  $('adminPainel').hidden = false;
+});
+
 $('btnApagar').addEventListener('click', acao(async () => {
   const sel = $('apagarSel');
-  if (sel.value && confirm('Remover ' + sel.selectedOptions[0].text + ' da lista?')) await admin('apagar', { id: sel.value });
+  const aviso = dados.sorteioFeito ? ' Isso desfaz o sorteio.' : '';
+  if (sel.value && confirm('Remover ' + sel.selectedOptions[0].text + ' da lista?' + aviso)) await admin('apagar', { id: sel.value });
 }));
 
 carregar().catch((err) => { if ($('lock').hidden) alert(err.message); });

@@ -191,6 +191,9 @@ test('cadastro antigo com PIN em texto continua entrando e é convertido', async
 test('bloqueia depois de muitas tentativas erradas', async () => {
   for (let i = 0; i < 20; i++) await call('login', { pin: '0000' }, '6.6.6.6');
   assert.equal((await call('login', { pin: FAMILY_PIN }, '6.6.6.6')).status, 429);
+  assert.equal((await call('entrar', { id: ana.id, pin: PINS.Ana }, '6.6.6.6')).status, 200, 'mesmo Wi-Fi: quem erra a senha não bloqueia os outros');
+  for (let i = 0; i < 20; i++) await call('entrar', { id: ana.id, pin: '0000' }, '6.6.6.6');
+  assert.equal((await call('entrar', { id: ana.id, pin: PINS.Ana }, '6.6.6.6')).status, 429, 'chute no PIN de uma pessoa continua limitado');
 });
 
 test('bloqueio vale para pedidos em paralelo', async () => {
@@ -210,4 +213,32 @@ test('remover alguém desfaz o sorteio', async () => {
   const r = await call('admin', { adminPin: ADMIN_PIN, op: 'apagar', id: 'antigo-1' });
   assert.equal(r.body.sorteados, 0);
   assert.equal((await call('lista')).body.sorteioFeito, false);
+});
+
+test('sorteio teste: segue as regras e não grava nada', async () => {
+  assert.equal((await call('admin', { adminPin: '1111', op: 'teste' })).status, 401);
+  for (let r = 0; r < 30; r++) {
+    const { teste, sorteados } = (await call('admin', { adminPin: ADMIN_PIN, op: 'teste' })).body;
+    assert.equal(sorteados, 0);
+    assert.equal(teste.length, 5);
+    assert.ok(teste.every((t) => t.de !== t.para));
+    assert.equal(new Set(teste.map((t) => t.para)).size, 5);
+  }
+  assert.equal(db.has('sorteio'), false);
+  assert.equal((await call('lista')).body.sorteioFeito, false);
+});
+
+test('evento: dia, hora e valor só com números', async () => {
+  await call('admin', { adminPin: ADMIN_PIN, op: 'evento', dia: '2026-12-24', hora: '20:00', local: 'Casa', valor: 'R$ 1.000' });
+  assert.deepEqual((await call('lista')).body.evento, { dia: '2026-12-24', hora: '20:00', local: 'Casa', valor: '1000' });
+  await call('admin', { adminPin: ADMIN_PIN, op: 'evento', dia: '24/12', hora: 'x' });
+  const ev = (await call('lista')).body.evento;
+  assert.equal(ev.dia, '');
+  assert.equal(ev.hora, '');
+});
+
+test('sapato com dois números fica salvo por pessoa', async () => {
+  const p = (await call('salvar', { id: ana.id, pin: PINS.Ana, nome: 'Ana', sapato: '40', sapatoDuplo: 'on' })).body.pessoa;
+  assert.equal(p.sapatoDuplo, true);
+  assert.equal((await call('salvar', { id: ana.id, pin: PINS.Ana, nome: 'Ana', sapato: '40' })).body.pessoa.sapatoDuplo, false);
 });

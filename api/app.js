@@ -123,6 +123,7 @@ function lerDados(b) {
     sapato: txt(b.sapato, 3),
     sugestoes: txt(b.sugestoes, 1500),
     naoGosto: txt(b.naoGosto, 500),
+    sapatoDuplo: b.sapatoDuplo === true || b.sapatoDuplo === 'on',
   };
 }
 
@@ -143,6 +144,12 @@ async function amigoDe(p, lista) {
   }
   const amigo = amigoId && lista.find((x) => x.id === amigoId);
   return amigo ? amigo.nome : null;
+}
+
+async function pessoasParaSorteio() {
+  const lista = await pessoas();
+  if (lista.length < 3) throw new HttpErr(400, 'O sorteio precisa de pelo menos 3 pessoas.');
+  return lista;
 }
 
 async function gravarSorteio(ids) {
@@ -196,11 +203,21 @@ const acoes = {
   async admin({ b, conferePin, adminPin }) {
     await conferePin(String(b.adminPin) === adminPin);
     if (b.op === 'evento') {
-      await redis('SET', 'evento', JSON.stringify({ data: txt(b.data, 40), local: txt(b.local, 80), valor: txt(b.valor, 20) }));
+      await redis('SET', 'evento', JSON.stringify({
+        dia: /^\d{4}-\d{2}-\d{2}$/.test(b.dia) ? b.dia : '',
+        hora: /^\d{2}:\d{2}$/.test(b.hora) ? b.hora : '',
+        local: txt(b.local, 80),
+        valor: String(b.valor ?? '').replace(/\D/g, '').slice(0, 7),
+      }));
     } else if (b.op === 'sortear') {
-      const ids = (await pessoas()).map((x) => x.id);
-      if (ids.length < 3) throw new HttpErr(400, 'O sorteio precisa de pelo menos 3 pessoas.');
-      await gravarSorteio(ids);
+      await gravarSorteio((await pessoasParaSorteio()).map((x) => x.id));
+    } else if (b.op === 'teste') {
+      const lista = await pessoasParaSorteio();
+      const nome = Object.fromEntries(lista.map((x) => [x.id, x.nome]));
+      const teste = Object.entries(sortear(lista.map((x) => x.id)))
+        .map(([de, para]) => ({ de: nome[de], para: nome[para] }))
+        .sort((x, y) => x.de.localeCompare(y.de, 'pt-BR'));
+      return { ok: true, teste, sorteados: await redis('HLEN', 'sorteio') };
     } else if (b.op === 'desfazer') {
       await redis('DEL', 'sorteio');
     } else if (b.op === 'apagar') {
@@ -223,7 +240,8 @@ export default async function handler(req, res) {
     const ip = String(req.headers['x-forwarded-for'] || 'local').split(',')[0].trim();
     const b = req.body && typeof req.body === 'object' ? req.body : {};
     const a = req.query.a;
-    const ctx = { b, conferePin: conferidorDePin(ip), familyPin: FAMILY_PIN, adminPin: ADMIN_PIN };
+    const alvo = a === 'entrar' || a === 'salvar' ? 'pessoa:' + b.id : a;
+    const ctx = { b, conferePin: conferidorDePin(`${ip}:${alvo}`), familyPin: FAMILY_PIN, adminPin: ADMIN_PIN };
 
     if (a === 'login') {
       await ctx.conferePin(String(b.pin).trim() === FAMILY_PIN);

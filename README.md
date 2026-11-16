@@ -7,11 +7,13 @@ Site simples onde cada pessoa cadastra os tamanhos de camisa, calça e sapato e 
 - **Senha da família** (4 números): primeiro passo para entrar no site.
 - **Quem é você?**: depois da senha, a pessoa escolhe entre "Quero entrar na brincadeira" (cadastro com nome, PIN de 4 números e pelo menos uma dica) ou "Já estou na lista" (nome + PIN).
 - **Lembra por 2 meses**: no mesmo navegador, a pessoa entra direto, sem senha nem PIN.
-- **Meus dados**: a pessoa edita os próprios dados.
+- **Lista**: o próprio card vem primeiro; depois de uma linha, os outros em ordem alfabética.
+- **Meus dados**: a pessoa edita os próprios dados. A opção "Dois números" mostra o sapato como 40/41 (começa desligada).
 - **Ver quem eu tirei**: aparece depois do sorteio; o nome vem escondido e o olho mostra.
 - **Organizador** (link no rodapé, PIN próprio, pedido toda vez):
-  - define a data, o local e o valor do presente;
+  - define o dia, o horário, o local e o valor do presente (aparece como "24/12 às 20h" e "R$ 100");
   - faz ou desfaz o sorteio;
+  - gera sorteios teste, que só ele vê e não ficam gravados, para conferir as regras;
   - remove um participante (nome repetido ou PIN esquecido: a pessoa se cadastra de novo). Remover desfaz o sorteio.
 - **Sorteio**: uniforme e com aleatoriedade criptográfica; ninguém tira a si mesmo e ninguém é tirado duas vezes. Se a lista mudar depois do sorteio, sorteie de novo.
 - **Proteção contra chute de PIN**: depois de 20 PINs errados, o IP fica bloqueado por 15 minutos.

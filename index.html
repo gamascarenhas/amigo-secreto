@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
-<meta name="theme-color" content="#D0161E">
 <title>Amigo Secreto da Família</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,8 +21,7 @@
   dialog::-webkit-scrollbar-track { margin-block: 22px; }
   @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: #cfcfcf transparent; } }
 
-  html { background: var(--red); }
-  body { margin: 0; min-height: 100vh; font: 500 16px/1.5 "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  body { margin: 0; font: 500 16px/1.5 "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
   main { max-width: 960px; margin: 0 auto; padding: 0 24px 64px; }
   h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 900; letter-spacing: -.02em; }
   h3 { margin: 0 0 8px; font-size: 1.15rem; font-weight: 800; }
@@ -39,9 +37,11 @@
   .pilula { font-size: 1.15rem; padding: 16px 30px; }
   input, select, textarea { font: inherit; width: 100%; padding: 12px 14px; border: 2px solid transparent; border-radius: 12px; background: var(--campo); color: var(--ink); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ink); background: #fff; }
-  input[type=date], input[type=time] { min-height: 52px; }
   .check { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 8px 0 0; cursor: pointer; }
-  .check input { width: 20px; height: 20px; padding: 0; flex: none; accent-color: var(--ink); }
+  .check input { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; padding: 0; margin: 0; flex: none; display: grid; place-content: center; border: 2px solid var(--ink); border-radius: 6px; background: #fff; cursor: pointer; }
+  .check input:checked { background: var(--ink); }
+  .check input:checked::after { content: ''; width: 6px; height: 11px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+  .check input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   .prefixo { position: relative; }
   .prefixo span { position: absolute; left: 16px; top: 50%; translate: 0 -50%; font-weight: 600; pointer-events: none; }
   .prefixo input { padding-left: 46px; }
@@ -105,6 +105,7 @@
     .tela .entrada { padding-top: 16px; }
   }
   .escolha { display: flex; flex-direction: column; gap: 12px; }
+  .sair { margin-left: auto; }
   .ola { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; margin: 0 0 6px; font-size: 1.15rem; }
   .lista-ic { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 10px; font-size: 1.05rem; }
   .lista-ic li { display: flex; gap: 16px; align-items: flex-start; }
@@ -131,15 +132,24 @@
   .ceu.fundo.aberto { clip-path: none; }
   .ceu.fundo svg { filter: blur(5px); }
   .ceu.fundo::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .25); }
-  .linha { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .linha { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; }
+  input[type=date], input[type=time] { -webkit-appearance: none; appearance: none; min-width: 0; min-height: 52px; text-align: left; }
+  ::-webkit-date-and-time-value { text-align: left; }
+  .msg:empty { display: none; }
+  .fechar-x { position: sticky; top: 0; float: right; z-index: 1; width: 40px; height: 40px; padding: 0; margin: -8px -8px 0 12px; display: grid; place-items: center; border-radius: 50%; background: var(--chip); color: var(--ink); font-size: 1.1rem; }
+  .fechar-x:hover { background: #e2e2e2; }
+  .msg.ok { color: #0E8A4B; font-weight: 600; }
   .botoes { display: flex; gap: 8px; justify-content: flex-start; margin-top: 18px; flex-wrap: wrap; }
   .botoes.colado { margin: 0; }
   .erro { color: var(--red); min-height: 1.5em; margin: 8px 0 0; font-size: .9rem; }
-  .segredo { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--red); color: #fff; border-radius: 16px; padding: 16px 16px 16px 20px; margin: 8px 0; min-height: 76px; }
-  .segredo span { font-size: 1.6rem; font-weight: 900; letter-spacing: -.02em; overflow-wrap: anywhere; }
-  .segredo span.oculto { letter-spacing: .15em; }
-  .olho { flex: none; width: 48px; height: 48px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .18); color: #fff; }
-  .olho:hover { background: rgba(255, 255, 255, .3); }
+  .segredo { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 14px 14px 14px 20px; margin: 8px 0; }
+  .segredo-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+  .segredo-detalhes { display: flex; flex-direction: column; gap: 10px; margin: 10px 6px 6px 0; }
+  .segredo p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  #amigoNome { font-size: 1.6rem; font-weight: 900; letter-spacing: -.02em; overflow-wrap: anywhere; }
+  #amigoNome.oculto { letter-spacing: .15em; }
+  .olho { flex: none; width: 48px; height: 48px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: var(--chip); color: var(--ink); }
+  .olho:hover { background: #e2e2e2; }
   .olho .ic { width: 26px; height: 26px; margin: 0; }
   .divisa { grid-column: 1 / -1; margin: 4px 0; }
   .pares { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
@@ -229,7 +239,7 @@
     <svg class="caixa" aria-hidden="true"><use href="#caixa"/></svg>
   </div>
   <main>
-    <p class="ola"><strong>Boas-vindas, <span id="olaNome"></span>! 👋</strong><button type="button" class="link" id="btnSair">Não é você? Sair</button></p>
+    <p class="ola"><strong>Boas-vindas, <span id="olaNome"></span>! 👋</strong><button type="button" class="link sair" id="btnSair">Sair</button></p>
     <h1 class="titulo">Amigo secreto</h1>
     <ul class="lista-ic" id="evento" hidden></ul>
     <p class="muted">Tamanhos e dicas de presente de cada um.</p>
@@ -260,7 +270,7 @@
       <div><label for="f-camisa">Camisa</label><select id="f-camisa" name="camisa"></select></div>
       <div>
         <label for="f-sapato">Sapato</label><select id="f-sapato" name="sapato"></select>
-        <label class="check"><input type="checkbox" id="f-sapatoDuplo" name="sapatoDuplo"> Dois números (ex.: 40/41)</label>
+        <label class="check"><input type="checkbox" id="f-sapatoDuplo" name="sapatoDuplo"> Duas numerações</label>
       </div>
       <div><label for="f-calcaNum">Calça (número)</label><select id="f-calcaNum" name="calcaNum"></select></div>
       <div><label for="f-calcaLetra">Calça (letra)</label><select id="f-calcaLetra" name="calcaLetra"></select></div>
@@ -281,11 +291,13 @@
 <dialog id="dlgAmigo">
   <h2>Seu amigo secreto 🤫</h2>
   <div class="segredo">
-    <span id="amigoNome"></span>
-    <button type="button" class="olho" id="btnOlho" aria-pressed="false" aria-label="Mostrar nome"><svg class="ic" aria-hidden="true"><use href="#i-olho"/></svg></button>
+    <div class="segredo-topo">
+      <span id="amigoNome"></span>
+      <button type="button" class="olho" id="btnOlho" aria-pressed="false" aria-label="Mostrar nome"><svg class="ic" aria-hidden="true"><use href="#i-olho"/></svg></button>
+    </div>
+    <div class="segredo-detalhes" id="amigoDetalhes" hidden></div>
   </div>
   <p class="muted peq" id="amigoDica"></p>
-  <div class="botoes"><button type="button" data-fechar autofocus>Fechar</button></div>
 </dialog>
 
 <dialog id="dlgSorteado">
@@ -313,7 +325,6 @@
     <p class="erro" id="adminLoginErro"></p>
     <div class="botoes">
       <button>Entrar</button>
-      <button type="button" class="sec" data-fechar>Fechar</button>
     </div>
   </form>
   <div id="adminPainel" hidden>
@@ -329,6 +340,7 @@
       <label for="e-valor">Valor do presente</label>
       <div class="prefixo"><span aria-hidden="true">R$</span><input id="e-valor" name="valor" inputmode="numeric" maxlength="7" placeholder="100"></div>
       <div class="botoes"><button>Salvar</button></div>
+      <p class="erro msg" id="eventoMsg" aria-live="polite"></p>
     </form>
     <hr>
     <h3>Sorteio (opcional)</h3>
@@ -339,13 +351,13 @@
       <button type="button" class="sec" id="btnDesfazer">Desfazer</button>
       <button type="button" class="sec" id="btnTeste">Sorteio teste 🧪</button>
     </div>
+    <p class="erro msg" id="sorteioMsg" aria-live="polite"></p>
     <hr>
     <h3>Tirar da lista</h3>
     <p class="muted peq">Nome repetido ou PIN esquecido.</p>
     <select id="apagarSel" aria-label="Participante"></select>
     <div class="botoes"><button type="button" class="sec" id="btnApagar">Remover</button></div>
-    <p class="erro" id="adminErro"></p>
-    <div class="botoes"><button type="button" class="sec" data-fechar>Fechar</button></div>
+    <p class="erro msg" id="apagarMsg" aria-live="polite"></p>
   </div>
   <div id="testePainel" hidden>
     <h2>Sorteio teste 🧪</h2>
@@ -523,16 +535,15 @@ function mostrarQuem() {
   $('btnJaEstou').hidden = !dados.pessoas.length;
 }
 
-function cardPessoa(p) {
+function detalhesPessoa(p) {
   const calca = [p.calcaNum, p.calcaLetra].filter(Boolean).join(' / ');
   const chips = [p.camisa && 'Camisa ' + p.camisa, calca && 'Calça ' + calca, p.sapato && 'Sapato ' + rotuloSapato(p.sapato, p.sapatoDuplo)].filter(Boolean);
-  return `<article class="card">
-      <h3>${esc(p.nome)}</h3>
-      ${chips.length ? `<div class="chips">${chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
+  return `${chips.length ? `<div class="chips">${chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
       ${p.sugestoes ? `<div><div class="rot">Quer</div><p>${linkar(p.sugestoes)}</p></div>` : ''}
-      ${p.naoGosto ? `<div><div class="rot">Não quer</div><p>${linkar(p.naoGosto)}</p></div>` : ''}
-    </article>`;
+      ${p.naoGosto ? `<div><div class="rot">Não quer</div><p>${linkar(p.naoGosto)}</p></div>` : ''}`;
 }
+
+const cardPessoa = (p) => `<article class="card"><h3>${esc(p.nome)}</h3>${detalhesPessoa(p)}</article>`;
 
 function render() {
   const { pessoas, evento } = dados;
@@ -663,6 +674,8 @@ $('form').addEventListener('submit', async (e) => {
 $('btnConfirma').addEventListener('click', () => salvar(pendente));
 $('dlgConfirma').addEventListener('close', () => { if (pendente) $('dlgForm').showModal(); });
 
+document.querySelectorAll('dialog').forEach((d) => d.insertAdjacentHTML('afterbegin', '<button type="button" class="fechar-x" data-fechar aria-label="Fechar">✕</button>'));
+
 document.addEventListener('click', (e) => {
   if (e.target.matches('[data-fechar]')) e.target.closest('dialog').close();
 });
@@ -720,8 +733,11 @@ function esconderAmigo(sim) {
   const olho = $('btnOlho');
   nome.textContent = !amigoAtual ? 'Você não está no sorteio.' : sim ? '••••••••' : amigoAtual;
   nome.classList.toggle('oculto', !!amigoAtual && sim);
+  const pessoa = !sim && dados.pessoas.find((p) => p.nome === amigoAtual);
+  $('amigoDetalhes').innerHTML = pessoa ? detalhesPessoa(pessoa) : '';
+  $('amigoDetalhes').hidden = !pessoa;
   olho.setAttribute('aria-pressed', String(!sim));
-  olho.setAttribute('aria-label', sim ? 'Mostrar nome' : 'Esconder nome');
+  olho.setAttribute('aria-label', sim ? 'Mostrar amigo secreto' : 'Esconder amigo secreto');
   olho.querySelector('use').setAttribute('href', sim ? '#i-olho' : '#i-olho-fechado');
 }
 
@@ -756,14 +772,22 @@ function preencherAdmin() {
   $('apagarSel').innerHTML = dados.pessoas.map((p) => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('');
 }
 
-const acao = (fn) => async () => {
-  $('adminErro').textContent = '';
+function mensagem(id, texto = '', ok = false) {
+  $(id).textContent = texto;
+  $(id).classList.toggle('ok', ok);
+}
+
+const limparMensagens = () => ['eventoMsg', 'sorteioMsg', 'apagarMsg', 'testeErro'].forEach((id) => mensagem(id));
+
+const acao = (saida, fn) => async () => {
+  limparMensagens();
   try {
-    await fn();
+    const sucesso = await fn();
     await carregar();
     preencherAdmin();
+    if (sucesso) mensagem(saida, sucesso, true);
   } catch (err) {
-    $('adminErro').textContent = err.message;
+    mensagem(saida, err.message);
   }
 };
 
@@ -771,6 +795,7 @@ $('btnAdmin').addEventListener('click', () => {
   $('adminLogin').hidden = false;
   $('adminPainel').hidden = true;
   $('testePainel').hidden = true;
+  limparMensagens();
   $('adminLoginErro').textContent = '';
   $('adminPin').value = '';
   $('adminPin').dispatchEvent(new Event('input'));
@@ -795,24 +820,28 @@ $('adminLogin').addEventListener('submit', async (e) => {
 
 $('eventoForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  acao(() => admin('evento', Object.fromEntries(new FormData(e.target))))();
+  acao('eventoMsg', async () => {
+    await admin('evento', Object.fromEntries(new FormData(e.target)));
+    return 'Salvo ✅';
+  })();
 });
 
-$('btnSortear').addEventListener('click', acao(async () => {
+$('btnSortear').addEventListener('click', acao('sorteioMsg', async () => {
   if (dados.sorteioFeito && !confirm('Sortear de novo troca todos os pares. Continuar?')) return;
   await admin('sortear');
   $('dlgSorteado').showModal();
 }));
 
-$('btnDesfazer').addEventListener('click', acao(async () => {
-  if (confirm('Apagar o sorteio?')) await admin('desfazer');
+$('btnDesfazer').addEventListener('click', acao('sorteioMsg', async () => {
+  if (!confirm('Apagar o sorteio?')) return;
+  await admin('desfazer');
+  return 'Sorteio desfeito.';
 }));
 
 $('e-valor').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
 
 async function sorteioTeste() {
-  $('adminErro').textContent = '';
-  $('testeErro').textContent = '';
+  limparMensagens();
   try {
     const { teste } = await admin('teste');
     const de = teste.map((t) => t.de);
@@ -827,7 +856,7 @@ async function sorteioTeste() {
     $('adminPainel').hidden = true;
     $('testePainel').hidden = false;
   } catch (err) {
-    ($('testePainel').hidden ? $('adminErro') : $('testeErro')).textContent = err.message;
+    mensagem($('testePainel').hidden ? 'sorteioMsg' : 'testeErro', err.message);
   }
 }
 
@@ -838,10 +867,13 @@ $('btnTesteVoltar').addEventListener('click', () => {
   $('adminPainel').hidden = false;
 });
 
-$('btnApagar').addEventListener('click', acao(async () => {
+$('btnApagar').addEventListener('click', acao('apagarMsg', async () => {
   const sel = $('apagarSel');
+  const nome = sel.selectedOptions[0]?.text;
   const aviso = dados.sorteioFeito ? ' Isso desfaz o sorteio.' : '';
-  if (sel.value && confirm('Remover ' + sel.selectedOptions[0].text + ' da lista?' + aviso)) await admin('apagar', { id: sel.value });
+  if (!sel.value || !confirm('Remover ' + nome + ' da lista?' + aviso)) return;
+  await admin('apagar', { id: sel.value });
+  return nome + ' saiu da lista.';
 }));
 
 carregar().catch((err) => { if ($('lock').hidden) alert(err.message); });

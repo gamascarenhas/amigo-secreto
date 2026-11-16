@@ -240,7 +240,7 @@ export default async function handler(req, res) {
     const ip = String(req.headers['x-forwarded-for'] || 'local').split(',')[0].trim();
     const b = req.body && typeof req.body === 'object' ? req.body : {};
     const a = req.query.a;
-    const alvo = a === 'entrar' || a === 'salvar' ? 'pessoa:' + b.id : a;
+    const alvo = a === 'entrar' || a === 'salvar' ? 'pessoa:' + String(b.id).slice(0, 64) : a;
     const ctx = { b, conferePin: conferidorDePin(`${ip}:${alvo}`), familyPin: FAMILY_PIN, adminPin: ADMIN_PIN };
 
     if (a === 'login') {

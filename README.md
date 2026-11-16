@@ -4,59 +4,32 @@ Site simples onde cada pessoa cadastra os tamanhos de camisa, calça e sapato e 
 
 ## Como funciona
 
-- **Senha da família** (4 números): primeiro passo para entrar no site.
-- **Quem é você?**: depois da senha, a pessoa escolhe entre "Quero entrar na brincadeira" (cadastro com nome, PIN de 4 números e pelo menos uma dica) ou "Já estou na lista" (nome + PIN).
-- **Lembra por 2 meses**: no mesmo navegador, a pessoa entra direto, sem senha nem PIN. O botão "Sair", ao lado das boas-vindas, troca de pessoa (celular dividido).
-- **Lista**: o próprio card vem primeiro; depois de uma linha, os outros em ordem alfabética.
-- **Meus dados**: a pessoa edita os próprios dados. A opção "Duas numerações" mostra o sapato como 40/41 (começa desligada).
-- **Ver quem eu tirei**: aparece depois do sorteio; tudo vem escondido e o olho mostra o nome, os tamanhos e o que a pessoa quer e não quer.
-- **Janelas**: todas fecham no ✕ do canto. No organizador, cada bloco mostra embaixo a mensagem de sucesso ou de erro.
-- **Organizador** (link no rodapé, PIN próprio, pedido toda vez):
-  - define o dia, o horário, o local e o valor do presente (aparece como "24/12 às 20h" e "R$ 100");
-  - faz ou desfaz o sorteio;
-  - gera sorteios teste, que só ele vê e não ficam gravados, para conferir as regras;
-  - remove um participante (nome repetido ou PIN esquecido: a pessoa se cadastra de novo). Remover desfaz o sorteio.
-- **Sorteio**: uniforme e com aleatoriedade criptográfica; ninguém tira a si mesmo e ninguém é tirado duas vezes. Se a lista mudar depois do sorteio, sorteie de novo.
-- **Proteção contra chute de PIN**: depois de 20 PINs errados, o IP fica bloqueado por 15 minutos.
+- **Entrada**: senha da família (4 números), depois cadastro com nome e PIN ou login de quem já está na lista. O navegador lembra a pessoa por 2 meses.
+- **Lista**: cada pessoa edita os próprios dados e vê os dados de todos.
+- **Ver quem eu tirei**: aparece depois do sorteio, com os dados do amigo escondidos até clicar no olho.
+- **Organizador** (link no rodapé, PIN próprio): define data, local e valor do presente, faz ou desfaz o sorteio, gera sorteios teste e remove participantes.
+- **Sorteio**: aleatoriedade criptográfica; ninguém tira a si mesmo nem é tirado duas vezes. Se a lista mudar, sorteie de novo.
+- **Proteção**: depois de 20 PINs errados, o IP fica bloqueado por 15 minutos.
 
 ## Privacidade
 
-Quem só tem acesso ao banco (Upstash) não descobre o PIN de ninguém nem quem tirou quem:
+Quem só tem acesso ao banco não descobre o PIN de ninguém nem quem tirou quem:
 
-- o PIN é guardado só como HMAC-SHA256 feito com o `SEGREDO`;
-- o resultado do sorteio é cifrado com AES-256-GCM, com chave derivada do `SEGREDO`.
+- o PIN é guardado como HMAC-SHA256 feito com o `SEGREDO`;
+- o sorteio é cifrado com AES-256-GCM, com chave derivada do `SEGREDO`.
 
-O `SEGREDO` fica só nas variáveis de ambiente da Vercel. Quem tiver o banco **e** o `SEGREDO` consegue abrir os dados. **Não troque o `SEGREDO` depois de usar o site**: os PINs param de funcionar e o sorteio fica ilegível.
+**Não troque o `SEGREDO` depois de usar o site**: os PINs param de funcionar e o sorteio fica ilegível.
 
-## Colocar no ar (Vercel)
+## Rodar no computador
 
-1. Crie um repositório no GitHub e envie esta pasta:
-   ```bash
-   git init
-   git add .
-   git commit -m "amigo secreto"
-   git branch -M main
-   git remote add origin https://github.com/SEU_USUARIO/amigo-secreto.git
-   git push -u origin main
-   ```
-2. Na Vercel, clique em **Add New → Project**, importe o repositório e mantenha o Framework como **Other**. Depois clique em **Deploy**.
-3. No projeto da Vercel, abra **Storage → Create Database → Upstash (Redis)**. Crie o banco no plano grátis e conecte-o ao projeto. As variáveis do banco são adicionadas sozinhas.
-4. Abra **Settings → Environment Variables** e adicione:
-   - `FAMILY_PIN`: a senha da família, com 4 números (ex.: `2512`)
-   - `ADMIN_PIN`: o PIN do organizador, com 4 números (diferente do anterior)
-   - `SEGREDO`: um texto aleatório longo. Gere com:
-     ```bash
-     node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
-     ```
-     Marque como **Sensitive**. Guarde uma cópia em lugar seguro.
-5. Abra **Deployments**, clique em **⋯** no último deploy e escolha **Redeploy**. As variáveis só passam a valer depois disso.
-6. Mande o link e a senha da família no grupo 🎁
+Copie `.env.example` para `.env` e preencha:
 
-## Testar no computador
-
-Copie `.env.example` para `.env` e preencha `FAMILY_PIN`, `ADMIN_PIN` e `SEGREDO` (o `.env` não vai para o Git).
+- `FAMILY_PIN`: senha da família, 4 números
+- `ADMIN_PIN`: PIN do organizador, 4 números
+- `SEGREDO`: texto aleatório longo, gerado com
+  `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
 
 ```bash
-npm run dev   # http://localhost:3004, senhas do .env (dados somem ao fechar)
+npm run dev   # http://localhost:3004 (dados somem ao fechar)
 npm test
 ```

@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=resizes-content">
+<title>Amigo Secreto da Família</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --red: #D0161E; --ink: #111; --muted: #5f5f5f; --bg: #fff; --line: #e6e6e6; --chip: #f2f2f2; --campo: #f6f6f6; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--red); }
+  ::-webkit-scrollbar-button { display: none; }
+  dialog::-webkit-scrollbar-track { margin-block: 22px; }
+  @supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: #cfcfcf transparent; } }
+
+  body { margin: 0; font: 500 16px/1.5 "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  main { max-width: 960px; margin: 0 auto; padding: 0 24px 64px; }
+  h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 900; letter-spacing: -.02em; }
+  h3 { margin: 0 0 8px; font-size: 1.15rem; font-weight: 800; }
+  .titulo { font-weight: 900; font-size: clamp(2.6rem, 10vw, 4.2rem); line-height: 1; letter-spacing: -.04em; margin: 0 0 20px; }
+  .muted { color: var(--muted); }
+  .peq { font-size: .85rem; }
+
+  button { font: inherit; border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer; background: var(--ink); color: #fff; font-weight: 600; }
+  button:hover { background: #333; }
+  button.sec { background: var(--chip); color: var(--ink); }
+  button.sec:hover { background: #e2e2e2; }
+  button.link { background: none; color: var(--muted); text-decoration: underline; padding: 4px; font-weight: 400; }
+  .pilula { font-size: 1.15rem; padding: 16px 30px; }
+  input, select, textarea { font: inherit; width: 100%; padding: 12px 14px; border: 2px solid transparent; border-radius: 12px; background: var(--campo); color: var(--ink); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ink); background: #fff; }
+  textarea { min-height: 90px; resize: vertical; }
+
+  @supports (appearance: base-select) {
+    select, ::picker(select) { appearance: base-select; }
+    select { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; }
+    select::picker-icon { content: ''; width: 8px; height: 8px; border-right: 2px solid; border-bottom: 2px solid; transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
+    select:open::picker-icon { transform: translateY(2px) rotate(-135deg); }
+    ::picker(select) { border: 0; border-radius: 16px; padding: 8px; margin-block: 6px; width: anchor-size(width); background: #fff; box-shadow: 0 12px 32px rgba(0, 0, 0, .18); max-height: 260px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cfcfcf transparent; }
+    select:open::picker(select) { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; }
+    option { justify-content: center; padding: 8px 4px; border-radius: 999px; background: var(--chip); font-weight: 600; cursor: pointer; }
+    option::checkmark { display: none; }
+    option[hidden] { display: none; }
+    #perfilSel:open::picker(select) { grid-template-columns: 1fr; }
+    #perfilSel option { justify-content: flex-start; padding: 10px 16px; }
+    option:hover, option:focus-visible { background: #e2e2e2; outline: none; }
+    option:checked { background: var(--ink); color: #fff; }
+  }
+
+  label { display: block; font-size: .9rem; font-weight: 600; margin: 14px 0 6px; }
+  .pin-box { position: relative; display: flex; justify-content: space-around; align-items: center; width: 200px; height: 64px; margin: 0 0 20px; background: var(--campo); border: 2px solid transparent; border-radius: 12px; }
+  .pin-box:focus-within { border-color: var(--ink); background: #fff; }
+  .pin-box span { width: 1ch; height: 1.2em; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .pin-box span:empty::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #c9c9c9; }
+  .pin-box:focus-within span.atual::after { background: var(--ink); }
+  .pin-mostra { background: var(--red); color: #fff; }
+  .pin-box.invalido, .pin-box.invalido:focus-within { border-color: var(--red); background: #fdeaea; }
+  .erro-campo { color: var(--red); font-size: .85rem; font-weight: 600; margin: -12px 0 8px; }
+  .erro-campo:empty { display: none; }
+  .erro-campo.abaixo-campo { margin: 6px 0 0; }
+  input.invalido, input.invalido:focus, textarea.invalido, textarea.invalido:focus { border-color: var(--red); background: #fdeaea; }
+  .pin-box input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; font-size: 16px; cursor: text; }
+
+  .hero { position: relative; margin-bottom: 28px; }
+  .ceu { position: relative; overflow: hidden; background: var(--red); height: var(--h); clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%); }
+  .ceu svg { position: absolute; left: 50%; top: 50%; width: var(--d); height: var(--d); translate: -50% -50%; animation: girar 300s linear infinite; will-change: transform; }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .ceu svg { animation: none; } }
+  .caixa { position: absolute; right: 7%; bottom: -6px; width: var(--w); height: var(--w); }
+  .hero-grande { --h: 100%; --w: min(42vw, 200px, 75cqh); flex: 1 1 0; min-height: 90px; margin-bottom: 20px; container-type: size; }
+  .hero-topo { --h: 190px; --w: 120px; }
+
+  .tela { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .entrada { flex: none; width: 100%; max-width: 560px; margin: 0 auto; padding: 0 24px 16px; }
+  @media (min-width: 900px) {
+    .tela { flex-direction: row; }
+    .tela .entrada { order: -1; flex: none; align-self: center; margin: 0; max-width: none; --margem: calc(max((100vw - 960px) / 2, 0px) + 24px); width: calc(var(--margem) + 420px + 56px); padding: 40px 56px 40px var(--margem); }
+    .tela .hero-grande { flex: 1 1 0; height: 100%; margin: 0; --w: min(240px, 20vw); }
+    .tela .hero-grande .ceu { clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%); }
+    .tela .hero-grande .caixa { right: auto; bottom: auto; top: 10%; left: calc(18% - var(--w) / 2); }
+  }
+  .entrada .erro { margin: 4px 0 0; }
+  @media (max-height: 700px) {
+    .tela .lista-ic { display: none; }
+    .tela .titulo { font-size: 2.4rem; margin-bottom: 12px; }
+  }
+  @media (max-height: 480px) {
+    .tela .hero { display: none; }
+    .tela .entrada { padding-top: 16px; }
+  }
+  .escolha { display: flex; flex-direction: column; gap: 12px; }
+  .ola { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; margin: 0 0 6px; font-size: 1.15rem; }
+  .lista-ic { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 10px; font-size: 1.05rem; }
+  .lista-ic li { display: flex; gap: 16px; align-items: flex-start; }
+  .ic { width: 22px; height: 22px; flex: none; margin-top: 2px; fill: currentColor; }
+
+  .topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 8px 0 20px; }
+  @media (max-width: 600px) {
+    .topo .botoes { width: 100%; }
+    .topo .botoes button { flex: 1 1 auto; }
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .card h3 { margin: 0; font-size: 1.2rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 3px 12px; font-size: .85rem; font-weight: 600; }
+  .card p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .rot { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+
+  dialog { border: 0; border-radius: 24px; padding: 24px; width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); color: var(--ink); }
+  dialog::backdrop { background: transparent; }
+  #dlgSorteado { width: min(360px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0, 0, 0, .35); }
+  #dlgSorteado::backdrop { background: rgba(0, 0, 0, .4); }
+  .ceu.fundo { position: fixed; inset: 0; z-index: 50; height: auto; clip-path: inset(100%); pointer-events: none; }
+  .ceu.fundo.aberto { clip-path: none; }
+  .ceu.fundo svg { filter: blur(5px); }
+  .ceu.fundo::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .25); }
+  .linha { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .botoes { display: flex; gap: 8px; justify-content: flex-start; margin-top: 18px; flex-wrap: wrap; }
+  .botoes.colado { margin: 0; }
+  .erro { color: var(--red); min-height: 1.5em; margin: 8px 0 0; font-size: .9rem; }
+  .segredo { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--red); color: #fff; border-radius: 16px; padding: 16px 16px 16px 20px; margin: 8px 0; min-height: 76px; }
+  .segredo span { font-size: 1.6rem; font-weight: 900; letter-spacing: -.02em; overflow-wrap: anywhere; }
+  .segredo span.oculto { letter-spacing: .15em; }
+  .olho { flex: none; width: 48px; height: 48px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .18); color: #fff; }
+  .olho:hover { background: rgba(255, 255, 255, .3); }
+  .olho .ic { width: 26px; height: 26px; margin: 0; }
+  .vazio { text-align: center; padding: 40px 16px; color: var(--muted); grid-column: 1 / -1; }
+  .rodape { text-align: center; margin-top: 40px; }
+  .sprite { position: absolute; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+  a { color: var(--red); }
+</style>
+</head>
+<body>
+
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <defs>
+    <path id="estrela" d="M0-12C1.5-3 3-1.5 12 0 3 1.5 1.5 3 0 12-1.5 3-3 1.5-12 0-3-1.5-1.5-3 0-12z"/>
+    <pattern id="listras" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+      <rect width="36" height="36" fill="#FBD5D8"/>
+      <rect width="16" height="36" fill="#F5AEB4"/>
+    </pattern>
+  </defs>
+  <symbol id="caixa" viewBox="0 0 200 200">
+    <rect x="24" y="12" width="168" height="170" rx="16" fill="#5A060C"/>
+    <rect x="10" y="26" width="168" height="168" rx="14" fill="url(#listras)"/>
+    <rect x="84" y="26" width="20" height="168" fill="#0E8A4B"/>
+    <rect x="10" y="102" width="168" height="16" fill="#0E8A4B"/>
+    <path d="M94 110C70 80 40 84 44 100c4 13 30 13 50 10zM94 110c24-30 54-26 50-10-4 13-30 13-50 10z" fill="#0B6B3A"/>
+    <path d="M94 110 66 144l12 3 16-31 16 31 12-3z" fill="#0E8A4B"/>
+    <circle cx="94" cy="110" r="8" fill="#0E8A4B"/>
+  </symbol>
+  <symbol id="i-presente" viewBox="0 0 24 24"><path d="M3 9h18v4H3zm2 5h14v7H5zM12 9C9 4 5 4.5 6 7.5 6.6 9 9 9 12 9zm0 0c3-5 7-4.5 6-1.5C17.4 9 15 9 12 9z"/><path d="M11 9h2v12h-2z" fill="#fff"/></symbol>
+  <symbol id="i-carta" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2 5h20v14H2zm2 2v1l8 5.5L20 8V7l-8 5.5z"/></symbol>
+  <symbol id="i-coracao" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2 4h20v16H2zm10 13.5-4.6-4.4a2.7 2.7 0 0 1 4.6-3.3 2.7 2.7 0 0 1 4.6 3.3z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M3 5h18v16H3zm2 5v9h14v-9zM7 2h2v4H7zm8 0h2v4h-2z"/></symbol>
+  <symbol id="i-local" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></symbol>
+  <symbol id="i-dinheiro" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2 6h20v12H2zm10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></symbol>
+  <symbol id="i-olho" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 5C6.5 5 2.7 9 1.5 12c1.2 3 5 7 10.5 7s9.3-4 10.5-7C21.3 9 17.5 5 12 5zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></symbol>
+  <symbol id="i-olho-fechado" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 5C6.5 5 2.7 9 1.5 12c1.2 3 5 7 10.5 7s9.3-4 10.5-7C21.3 9 17.5 5 12 5zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/><path d="M2.6 4.6 4.6 2.6l16.8 16.8-2 2z" style="stroke: var(--red); stroke-width: 1.2"/></symbol>
+</svg>
+
+<div id="lock" class="tela" hidden>
+  <div class="hero hero-grande">
+    <div class="ceu"><svg aria-hidden="true"></svg></div>
+    <svg class="caixa" aria-hidden="true"><use href="#caixa"/></svg>
+  </div>
+  <form class="entrada" id="lockForm">
+    <h1 class="titulo">Amigo<br>secreto</h1>
+    <ul class="lista-ic">
+      <li><svg class="ic" aria-hidden="true"><use href="#i-presente"/></svg>Veja o tamanho de cada um</li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-carta"/></svg>Diga o que quer ganhar</li>
+      <li><svg class="ic" aria-hidden="true"><use href="#i-coracao"/></svg>Descubra quem você tirou 🤫</li>
+    </ul>
+    <label for="famPin">Senha da família</label>
+    <input class="pin" id="famPin" inputmode="numeric" pattern="\d{4}" maxlength="4" autocomplete="off" required>
+    <button class="pilula">Entrar <span aria-hidden="true">→</span></button>
+    <p class="erro" id="lockErro"></p>
+  </form>
+</div>
+
+<div id="quem" class="tela" hidden>
+  <div class="hero hero-grande">
+    <div class="ceu"><svg aria-hidden="true"></svg></div>
+    <svg class="caixa" aria-hidden="true"><use href="#caixa"/></svg>
+  </div>
+  <form class="entrada" id="pinForm">
+    <h1 class="titulo">Quem é<br>você?</h1>
+    <div id="quemEscolha" class="escolha">
+      <button type="button" class="pilula" id="btnNovo">Quero entrar na brincadeira</button>
+      <button type="button" class="pilula sec" id="btnJaEstou">Já estou na lista</button>
+    </div>
+    <div id="quemEntrar" hidden>
+      <label for="perfilSel">Seu nome</label>
+      <select id="perfilSel" required></select>
+      <label for="pessoaPin">Seu PIN</label>
+      <input class="pin" id="pessoaPin" inputmode="numeric" maxlength="4" pattern="\d{4}" autocomplete="off" required>
+      <div class="botoes colado">
+        <button class="pilula">Entrar <span aria-hidden="true">→</span></button>
+        <button type="button" class="pilula sec" id="btnVoltarEscolha">Voltar</button>
+      </div>
+      <p class="erro" id="pinErro"></p>
+    </div>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <div class="hero hero-topo">
+    <div class="ceu"><svg aria-hidden="true"></svg></div>
+    <svg class="caixa" aria-hidden="true"><use href="#caixa"/></svg>
+  </div>
+  <main>
+    <h1 class="titulo">Amigo secreto</h1>
+    <p class="ola"><strong>Boas-vindas, <span id="olaNome"></span>! 👋</strong></p>
+    <ul class="lista-ic" id="evento" hidden></ul>
+    <p class="muted">Tamanhos e dicas de presente de cada um.</p>
+    <div class="topo">
+      <strong id="contagem"></strong>
+      <div class="botoes colado">
+        <button type="button" id="btnAmigo" hidden>Ver quem eu tirei 🎁</button>
+        <button type="button" id="btnPerfil">Meus dados</button>
+      </div>
+    </div>
+    <div class="grid" id="lista"></div>
+    <p class="rodape"><button class="link" id="btnAdmin">Cantinho do organizador</button></p>
+  </main>
+</div>
+
+<dialog id="dlgForm">
+  <form id="form">
+    <h2 id="formTitulo"></h2>
+    <label for="f-nome">Seu nome</label>
+    <input id="f-nome" name="nome" maxlength="40" required aria-describedby="nomeAviso">
+    <p class="erro-campo abaixo-campo" id="nomeAviso" aria-live="polite"></p>
+    <div id="pinNovo">
+      <label for="f-pin">Crie um PIN (4 números)</label>
+      <input class="pin" id="f-pin" name="pin" inputmode="numeric" maxlength="4" pattern="\d{4}" autocomplete="off" aria-describedby="pinAviso">
+      <p class="erro-campo" id="pinAviso" aria-live="polite"></p>
+    </div>
+    <div class="linha">
+      <div><label for="f-camisa">Camisa</label><select id="f-camisa" name="camisa"></select></div>
+      <div><label for="f-sapato">Sapato</label><select id="f-sapato" name="sapato"></select></div>
+      <div><label for="f-calcaNum">Calça (número)</label><select id="f-calcaNum" name="calcaNum"></select></div>
+      <div><label for="f-calcaLetra">Calça (letra)</label><select id="f-calcaLetra" name="calcaLetra"></select></div>
+    </div>
+    <label for="f-sugestoes">Quero ganhar</label>
+    <textarea id="f-sugestoes" name="sugestoes" maxlength="1500" placeholder="Ideias, lojas, links…" aria-describedby="dicaAviso"></textarea>
+    <p class="erro-campo abaixo-campo" id="dicaAviso" aria-live="polite"></p>
+    <label for="f-naoGosto">Não quero ganhar</label>
+    <textarea id="f-naoGosto" name="naoGosto" maxlength="500" placeholder="Ex.: meia, mais uma caneca…"></textarea>
+    <p class="erro" id="formErro"></p>
+    <div class="botoes">
+      <button>Salvar</button>
+      <button type="button" class="sec" id="formCancelar" data-fechar>Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgAmigo">
+  <h2>Seu amigo secreto 🤫</h2>
+  <div class="segredo">
+    <span id="amigoNome"></span>
+    <button type="button" class="olho" id="btnOlho" aria-pressed="false" aria-label="Mostrar nome"><svg class="ic" aria-hidden="true"><use href="#i-olho"/></svg></button>
+  </div>
+  <p class="muted peq" id="amigoDica"></p>
+  <div class="botoes"><button type="button" data-fechar autofocus>Fechar</button></div>
+</dialog>
+
+<dialog id="dlgSorteado">
+  <h2>Sorteio feito! 🎉</h2>
+  <p class="muted">Cada um já pode ver quem tirou.</p>
+  <div class="botoes"><button type="button" data-fechar autofocus>Oba! 🎁</button></div>
+</dialog>
+
+<dialog id="dlgConfirma">
+  <h2>Guarde seu PIN 🔐</h2>
+  <p>Sem ele, não dá para editar nem ver quem você tirou.</p>
+  <div class="pin-box pin-mostra" id="pinMostra"></div>
+  <p class="muted peq">Esqueceu? Fale com o organizador.</p>
+  <div class="botoes">
+    <button type="button" id="btnConfirma">Anotei, salvar</button>
+    <button type="button" class="sec" data-fechar>Voltar</button>
+  </div>
+</dialog>
+
+<dialog id="dlgAdmin">
+  <form id="adminLogin">
+    <h2>Cantinho do organizador</h2>
+    <p class="muted">Digite o PIN do organizador.</p>
+    <input class="pin" id="adminPin" inputmode="numeric" maxlength="4" pattern="\d{4}" required autocomplete="off" aria-label="PIN do organizador">
+    <p class="erro" id="adminLoginErro"></p>
+    <div class="botoes">
+      <button>Entrar</button>
+      <button type="button" class="sec" data-fechar>Fechar</button>
+    </div>
+  </form>
+  <div id="adminPainel" hidden>
+    <h2>Cantinho do organizador</h2>
+    <form id="eventoForm">
+      <h3>A festa</h3>
+      <label for="e-data">Quando?</label>
+      <input id="e-data" name="data" maxlength="40" placeholder="24/12 às 20h">
+      <label for="e-local">Onde?</label>
+      <input id="e-local" name="local" maxlength="80" placeholder="Casa da vó">
+      <label for="e-valor">Valor do presente</label>
+      <input id="e-valor" name="valor" maxlength="20" placeholder="R$ 100">
+      <div class="botoes"><button>Salvar</button></div>
+    </form>
+    <hr>
+    <h3>Sorteio (opcional)</h3>
+    <p id="sorteioStatus"></p>
+    <p class="muted peq">Cada um vê em "Meu perfil". Mudou a lista? Sorteie de novo.</p>
+    <div class="botoes">
+      <button type="button" id="btnSortear">Sortear 🎲</button>
+      <button type="button" class="sec" id="btnDesfazer">Desfazer</button>
+    </div>
+    <hr>
+    <h3>Tirar da lista</h3>
+    <p class="muted peq">Nome repetido ou PIN esquecido.</p>
+    <select id="apagarSel" aria-label="Participante"></select>
+    <div class="botoes"><button type="button" class="sec" id="btnApagar">Remover</button></div>
+    <p class="erro" id="adminErro"></p>
+    <div class="botoes"><button type="button" class="sec" data-fechar>Fechar</button></div>
+  </div>
+</dialog>
+
+<div id="fundo" class="ceu fundo" aria-hidden="true"><svg aria-hidden="true"></svg></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const linkar = (s) => esc(s).replace(/https?:\/\/[^\s<]+/g, (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
+const chaveNome = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+const DOIS_MESES = 60 * 24 * 60 * 60 * 1000;
+const CEU = { grande: { px: 40000, tam: 1.8 }, topo: { px: 12000, tam: 1 } };
+const TAMANHO_MINIMO_DICA = 3;
+const CAMPOS_DADOS = ['nome', 'camisa', 'calcaNum', 'calcaLetra', 'sapato', 'sugestoes', 'naoGosto'];
+const CAMPOS_TAMANHO = ['camisa', 'calcaNum', 'calcaLetra', 'sapato'];
+
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify({ v, ate: Date.now() + DOIS_MESES })); } catch {} };
+const ler = (k) => { try { const o = JSON.parse(localStorage.getItem(k)); if (o?.ate > Date.now()) return o.v; localStorage.removeItem(k); } catch {} return null; };
+const esquecer = (k) => { try { localStorage.removeItem(k); } catch {} };
+const lembrar = (id, pin) => guardar('eu', { id, pin });
+
+let token = ler('familia') || '';
+let dados = { pessoas: [], evento: null, sorteioFeito: false };
+let euPessoa = null;
+let editando = null;
+let pendente = null;
+let adminPin = null;
+let amigoAtual = null;
+let pinTocado = false;
+let dicaTocada = false;
+let ceuPendente = 0;
+
+async function api(a, body = {}) {
+  const r = await fetch('/api/app?a=' + a, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-familia': token },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(15000),
+  }).catch(() => { throw new Error('O site não respondeu. Tente de novo.'); });
+  const j = await r.json().catch(() => ({ erro: 'Sem conexão. Tente de novo.' }));
+  if (r.status === 403) { mostrarLock(); throw new Error(j.erro); }
+  if (!r.ok) throw new Error(j.erro || 'Algo deu errado. Tente de novo.');
+  return j;
+}
+
+function pintarCeu() {
+  document.querySelectorAll('.ceu').forEach((c) => {
+    const fixo = c.id === 'fundo';
+    const w = fixo ? innerWidth : c.clientWidth;
+    const h = fixo ? innerHeight : c.clientHeight;
+    const D = Math.ceil(Math.hypot(w, h));
+    const s = c.querySelector('svg');
+    if (!w || !h || s.dataset.tam === String(D)) return;
+    s.dataset.tam = D;
+    c.style.setProperty('--d', `${D}px`);
+    const { px, tam: k } = c.closest('.hero-grande') ? CEU.grande : CEU.topo;
+    const R = D / 2;
+    const N = Math.max(22, Math.round((Math.PI * R * R) / px));
+    const n = (v) => (v * k).toFixed(2);
+    const el = [];
+    for (let i = 0; i < N; i++) {
+      const t = Math.sqrt((i + 0.5) / N);
+      const r = R * t;
+      const a = i * 2.39996;
+      const perto = 1 - t;
+      const x = (R + r * Math.cos(a)).toFixed(1);
+      const y = (R + r * Math.sin(a)).toFixed(1);
+      el.push([
+        `<circle cx="${x}" cy="${y}" r="${n(1.5 + 2.5 * perto)}" fill="#F7A0A3"/>`,
+        `<use href="#estrela" fill="#F2575C" transform="translate(${x} ${y}) scale(${n(0.35 + 0.75 * perto)})"/>`,
+        `<circle cx="${x}" cy="${y}" r="${n(1.5 + 2 * perto)}" fill="#F7A0A3"/>`,
+        `<circle cx="${x}" cy="${y}" r="${n(4 + 12 * perto)}" fill="#E3383E"/>`,
+        `<use href="#estrela" fill="#F2575C" transform="translate(${x} ${y}) scale(${n(0.3 + 0.6 * perto)})"/>`,
+        `<rect x="-5" y="-5" width="10" height="10" fill="#E3383E" transform="translate(${x} ${y}) rotate(45) scale(${n(0.5 + 0.7 * perto)})"/>`,
+      ][i % 6]);
+    }
+    s.setAttribute('viewBox', `0 0 ${D} ${D}`);
+    s.innerHTML = el.join('');
+  });
+}
+
+const atualizarFundo = () => $('fundo').classList.toggle('aberto', !!document.querySelector('dialog[open]'));
+
+new MutationObserver(() => (document.querySelector('dialog[open]') ? atualizarFundo() : setTimeout(atualizarFundo, 60)))
+  .observe(document.body, { subtree: true, attributeFilter: ['open'] });
+
+addEventListener('resize', () => {
+  cancelAnimationFrame(ceuPendente);
+  ceuPendente = requestAnimationFrame(pintarCeu);
+});
+
+document.querySelectorAll('input.pin').forEach((inp) => {
+  const box = document.createElement('div');
+  box.className = 'pin-box';
+  inp.replaceWith(box);
+  const vagas = [0, 1, 2, 3].map(() => document.createElement('span'));
+  box.append(inp, ...vagas);
+  const pintar = () => vagas.forEach((s, i) => {
+    s.textContent = inp.value[i] || '';
+    s.classList.toggle('atual', i === inp.value.length);
+  });
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/\D/g, '').slice(0, 4);
+    pintar();
+  });
+  inp.form?.addEventListener('reset', () => setTimeout(pintar));
+  pintar();
+});
+
+const opcoes = (id, vals) => { $(id).innerHTML = ['<option value="" hidden>—</option>', ...vals.map((v) => `<option>${v}</option>`)].join(''); };
+const faixa = (de, ate, passo = 1) => Array.from({ length: Math.floor((ate - de) / passo) + 1 }, (_, i) => String(de + i * passo));
+const INFANTIL = faixa(2, 16, 2);
+opcoes('f-camisa', [...INFANTIL, 'PP', 'P', 'M', 'G', 'GG', 'XG', 'XGG', 'EG', 'EGG']);
+opcoes('f-calcaLetra', [...INFANTIL, 'PP', 'P', 'M', 'G', 'GG', 'XG', 'XGG']);
+opcoes('f-calcaNum', [...INFANTIL, ...faixa(34, 60, 2)]);
+opcoes('f-sapato', faixa(18, 48));
+
+const tela = (qual) => {
+  for (const t of ['lock', 'quem', 'app']) $(t).hidden = t !== qual;
+  pintarCeu();
+};
+
+async function carregar() {
+  dados = await api('lista');
+  const eu = ler('eu');
+  euPessoa = eu && dados.pessoas.find((p) => p.id === eu.id);
+  if (!euPessoa) return mostrarQuem();
+  tela('app');
+  render();
+}
+
+function mostrarLock() {
+  tela('lock');
+  $('famPin').focus();
+}
+
+function mostrarQuem() {
+  esquecer('eu');
+  tela('quem');
+  $('perfilSel').innerHTML = '<option value="" hidden>Escolha seu nome</option>'
+    + dados.pessoas.map((p) => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('');
+  $('pessoaPin').value = '';
+  $('pessoaPin').dispatchEvent(new Event('input'));
+  $('pinErro').textContent = '';
+  $('quemEscolha').hidden = false;
+  $('quemEntrar').hidden = true;
+  $('btnJaEstou').hidden = !dados.pessoas.length;
+}
+
+function cardPessoa(p) {
+  const calca = [p.calcaNum, p.calcaLetra].filter(Boolean).join(' / ');
+  const chips = [p.camisa && 'Camisa ' + p.camisa, calca && 'Calça ' + calca, p.sapato && 'Sapato ' + p.sapato].filter(Boolean);
+  return `<article class="card">
+      <h3>${esc(p.nome)}</h3>
+      ${chips.length ? `<div class="chips">${chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
+      ${p.sugestoes ? `<div><div class="rot">Quer</div><p>${linkar(p.sugestoes)}</p></div>` : ''}
+      ${p.naoGosto ? `<div><div class="rot">Não quer</div><p>${linkar(p.naoGosto)}</p></div>` : ''}
+    </article>`;
+}
+
+function render() {
+  const { pessoas, evento } = dados;
+  const partes = evento ? [['i-cal', evento.data], ['i-local', evento.local], ['i-dinheiro', evento.valor && 'Valor: ' + evento.valor]].filter(([, t]) => t) : [];
+  $('evento').hidden = !partes.length;
+  $('evento').innerHTML = partes.map(([i, t]) => `<li><svg class="ic" aria-hidden="true"><use href="#${i}"/></svg>${esc(t)}</li>`).join('');
+  $('olaNome').textContent = euPessoa.nome;
+  $('btnAmigo').hidden = !dados.sorteioFeito;
+  $('btnPerfil').className = dados.sorteioFeito ? 'sec' : '';
+  $('contagem').textContent = pessoas.length + (pessoas.length === 1 ? ' pessoa na brincadeira' : ' pessoas na brincadeira');
+  $('lista').innerHTML = pessoas.length ? pessoas.map(cardPessoa).join('') : '<p class="vazio">Lista vazia. Seja a primeira pessoa! 🎁</p>';
+}
+
+function mostrarAviso(el, msg) {
+  const novo = msg && msg !== el.textContent;
+  el.textContent = msg;
+  if (novo) requestAnimationFrame(() => el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+}
+
+function marcarCampo(campo, alvo, aviso, msg) {
+  alvo.classList.toggle('invalido', !!msg);
+  campo.setAttribute('aria-invalid', String(!!msg));
+  mostrarAviso(aviso, msg);
+}
+
+function problemaPin(pin) {
+  if (!/^\d{4}$/.test(pin)) return 'O PIN precisa ter 4 números.';
+  if (/^(\d)\1{3}$/.test(pin)) return 'PIN com 4 números iguais não vale.';
+  return '';
+}
+
+const marcarPin = (msg) => marcarCampo($('f-pin'), $('f-pin').parentElement, $('pinAviso'), msg);
+const marcarNome = (msg) => marcarCampo($('f-nome'), $('f-nome'), $('nomeAviso'), msg);
+const marcarDica = (msg) => marcarCampo($('f-sugestoes'), $('f-sugestoes'), $('dicaAviso'), msg);
+
+async function checarPin() {
+  const msg = await problemaPin($('f-pin').value);
+  marcarPin(msg);
+  return !msg;
+}
+
+function checarNome() {
+  const nome = $('f-nome').value;
+  const repetido = dados.pessoas.some((p) => p.id !== editando?.id && chaveNome(p.nome) === chaveNome(nome));
+  marcarNome(repetido ? 'Esse nome já existe. Use outro (ex.: com sobrenome).' : '');
+  return !repetido;
+}
+
+function checarDica() {
+  const f = $('form').elements;
+  const ok = CAMPOS_TAMANHO.some((k) => f[k].value) || f.sugestoes.value.trim().length >= TAMANHO_MINIMO_DICA;
+  marcarDica(ok ? '' : 'Conte o que quer ganhar ou pelo menos um tamanho.');
+  return ok;
+}
+
+$('f-pin').addEventListener('blur', () => {
+  pinTocado = true;
+  checarPin();
+});
+$('f-pin').addEventListener('input', () => {
+  if ($('f-pin').value.length === 4) pinTocado = true;
+  if (pinTocado) checarPin();
+});
+$('f-nome').addEventListener('input', checarNome);
+$('f-nome').addEventListener('blur', checarNome);
+for (const evento of ['input', 'change']) {
+  $('form').addEventListener(evento, (e) => {
+    if (dicaTocada && e.target.id !== 'f-nome' && e.target.id !== 'f-pin') checarDica();
+  });
+}
+
+function abrirForm(p, pin) {
+  editando = p ? { id: p.id, pin } : null;
+  $('formTitulo').textContent = p ? 'Seus dados ✏️' : 'Entrar na brincadeira';
+  const f = $('form');
+  f.reset();
+  for (const k of CAMPOS_DADOS) f.elements[k].value = p?.[k] || '';
+  $('pinNovo').hidden = !!p;
+  $('formCancelar').textContent = p ? 'Cancelar' : 'Voltar';
+  $('f-pin').required = !p;
+  pinTocado = false;
+  marcarPin('');
+  marcarNome('');
+  dicaTocada = false;
+  marcarDica('');
+  $('formErro').textContent = '';
+  $('dlgForm').showModal();
+}
+
+async function salvar(body) {
+  $('btnConfirma').disabled = true;
+  try {
+    lembrar((await api('salvar', body)).pessoa.id, body.pin);
+    pendente = null;
+    $('dlgConfirma').close();
+    $('dlgForm').close();
+    await carregar();
+  } catch (err) {
+    $('dlgConfirma').close();
+    $('formErro').textContent = err.message;
+  } finally {
+    $('btnConfirma').disabled = false;
+  }
+}
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target));
+  if (!checarNome()) return $('f-nome').focus();
+  if (!editando && !(await checarPin())) {
+    pinTocado = true;
+    return $('f-pin').focus();
+  }
+  if (!checarDica()) {
+    dicaTocada = true;
+    return $('f-sugestoes').focus();
+  }
+  if (editando) return salvar(Object.assign(body, editando));
+  pendente = body;
+  $('pinMostra').innerHTML = [...body.pin].map((d) => `<span>${esc(d)}</span>`).join('');
+  $('dlgForm').close();
+  $('dlgConfirma').showModal();
+});
+
+$('btnConfirma').addEventListener('click', () => salvar(pendente));
+$('dlgConfirma').addEventListener('close', () => { if (pendente) $('dlgForm').showModal(); });
+
+document.addEventListener('click', (e) => {
+  if (e.target.matches('[data-fechar]')) e.target.closest('dialog').close();
+});
+
+$('lockForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('lockErro').textContent = 'Abrindo o presente… 🎁';
+  try {
+    token = (await api('login', { pin: $('famPin').value })).token;
+    guardar('familia', token);
+    await carregar();
+    $('lockErro').textContent = '';
+  } catch (err) {
+    $('lockErro').textContent = err.message;
+  }
+});
+
+$('btnNovo').addEventListener('click', () => abrirForm(null));
+$('btnJaEstou').addEventListener('click', () => {
+  $('quemEscolha').hidden = true;
+  $('quemEntrar').hidden = false;
+});
+$('btnVoltarEscolha').addEventListener('click', () => {
+  $('quemEntrar').hidden = true;
+  $('quemEscolha').hidden = false;
+  $('pinErro').textContent = '';
+});
+
+$('pinForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = $('pessoaPin').value;
+  const id = $('perfilSel').value;
+  try {
+    await api('entrar', { id, pin });
+    lembrar(id, pin);
+    await carregar();
+  } catch (err) {
+    $('pinErro').textContent = err.message;
+  }
+});
+
+$('btnPerfil').addEventListener('click', async () => {
+  const eu = ler('eu');
+  try {
+    const r = await api('entrar', eu);
+    abrirForm(r.pessoa, eu.pin);
+  } catch {
+    mostrarQuem();
+  }
+});
+
+function esconderAmigo(sim) {
+  const nome = $('amigoNome');
+  const olho = $('btnOlho');
+  nome.textContent = !amigoAtual ? 'Você não está no sorteio.' : sim ? '••••••••' : amigoAtual;
+  nome.classList.toggle('oculto', !!amigoAtual && sim);
+  olho.setAttribute('aria-pressed', String(!sim));
+  olho.setAttribute('aria-label', sim ? 'Mostrar nome' : 'Esconder nome');
+  olho.querySelector('use').setAttribute('href', sim ? '#i-olho' : '#i-olho-fechado');
+}
+
+$('btnOlho').addEventListener('click', () => esconderAmigo($('btnOlho').getAttribute('aria-pressed') === 'true'));
+
+$('btnAmigo').addEventListener('click', async () => {
+  const eu = ler('eu');
+  try {
+    amigoAtual = (await api('entrar', eu)).amigo;
+  } catch {
+    return mostrarQuem();
+  }
+  $('btnOlho').hidden = !amigoAtual;
+  $('amigoDica').textContent = amigoAtual ? 'Toque no olho para ver. Não conte para ninguém!' : 'Fale com o organizador.';
+  esconderAmigo(true);
+  $('dlgAmigo').showModal();
+});
+
+async function admin(op, extra = {}) {
+  const r = await api('admin', { adminPin, op, ...extra });
+  const total = dados.pessoas.length;
+  $('sorteioStatus').textContent = !r.sorteados ? 'O sorteio ainda não foi feito.'
+    : r.sorteados === total ? `✅ Sorteio feito com ${r.sorteados} pessoas.`
+    : `⚠️ Sorteio feito com ${r.sorteados} pessoas, mas a lista tem ${total}. Sorteie de novo.`;
+  return r;
+}
+
+function preencherAdmin() {
+  const evento = dados.evento || {};
+  for (const k of ['data', 'local', 'valor']) $('eventoForm').elements[k].value = evento[k] || '';
+  $('apagarSel').innerHTML = dados.pessoas.map((p) => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('');
+}
+
+const acao = (fn) => async () => {
+  $('adminErro').textContent = '';
+  try {
+    await fn();
+    await carregar();
+    preencherAdmin();
+  } catch (err) {
+    $('adminErro').textContent = err.message;
+  }
+};
+
+$('btnAdmin').addEventListener('click', () => {
+  $('adminLogin').hidden = false;
+  $('adminPainel').hidden = true;
+  $('adminLoginErro').textContent = '';
+  $('adminPin').value = '';
+  $('adminPin').dispatchEvent(new Event('input'));
+  $('dlgAdmin').showModal();
+});
+
+$('dlgAdmin').addEventListener('close', () => { adminPin = null; });
+
+$('adminLogin').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  adminPin = $('adminPin').value;
+  try {
+    await admin('ver');
+    $('adminLogin').hidden = true;
+    $('adminPainel').hidden = false;
+    preencherAdmin();
+  } catch (err) {
+    adminPin = null;
+    $('adminLoginErro').textContent = err.message;
+  }
+});
+
+$('eventoForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  acao(() => admin('evento', Object.fromEntries(new FormData(e.target))))();
+});
+
+$('btnSortear').addEventListener('click', acao(async () => {
+  if (dados.sorteioFeito && !confirm('Sortear de novo troca todos os pares. Continuar?')) return;
+  await admin('sortear');
+  $('dlgSorteado').showModal();
+}));
+
+$('btnDesfazer').addEventListener('click', acao(async () => {
+  if (confirm('Apagar o sorteio?')) await admin('desfazer');
+}));
+
+$('btnApagar').addEventListener('click', acao(async () => {
+  const sel = $('apagarSel');
+  if (sel.value && confirm('Remover ' + sel.selectedOptions[0].text + ' da lista?')) await admin('apagar', { id: sel.value });
+}));
+
+carregar().catch((err) => { if ($('lock').hidden) alert(err.message); });
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "amigo-secreto",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env dev/server.mjs",
+    "test": "node --test dev/app.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

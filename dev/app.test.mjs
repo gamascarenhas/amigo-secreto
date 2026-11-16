@@ -2,7 +2,7 @@ import test from 'node:test';
 import { createHash, randomBytes, randomInt } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { mockRedis } from './mock-redis.mjs';
-import handler, { sortear, conferirSorteio, pinHash } from '../api/app.js';
+import handler, { sortear, conferirSorteio } from '../api/app.js';
 
 const PINS_DO_TESTE = new Set(['0000', '1111', '2222', '7777', '1357', '2468', '3579', '2580', '4826', '4827']);
 function pinAleatorio(...evitar) {
@@ -177,17 +177,6 @@ test('quem vê o banco não descobre PIN nem quem tirou quem', async () => {
   assert.ok((await call('entrar', { id: anaDb.id, pin: PINS.Ana })).body.amigo);
 });
 
-test('cadastro antigo com PIN em texto continua entrando e é convertido', async () => {
-  const id = 'antigo-1';
-  db.get('pessoas').set(id, JSON.stringify({ id, nome: 'Velho', pin: '4826', sapato: '40' }));
-  assert.equal((await call('entrar', { id, pin: '4826' })).status, 200);
-  const salvo = JSON.parse(db.get('pessoas').get(id));
-  assert.equal(salvo.pin, undefined);
-  assert.equal(salvo.pinHash, pinHash(id, '4826'));
-  assert.equal((await call('entrar', { id, pin: '4826' })).status, 200);
-  assert.equal((await call('entrar', { id, pin: '4827' })).status, 401);
-});
-
 test('bloqueia depois de muitas tentativas erradas', async () => {
   for (let i = 0; i < 20; i++) await call('login', { pin: '0000' }, '6.6.6.6');
   assert.equal((await call('login', { pin: FAMILY_PIN }, '6.6.6.6')).status, 429);
@@ -209,9 +198,11 @@ test('token da família não sai só da senha', async () => {
 });
 
 test('remover alguém desfaz o sorteio', async () => {
+  const { id } = (await call('salvar', { nome: 'Sai Logo', pin: '4826', sapato: '40' })).body.pessoa;
   await call('admin', { adminPin: ADMIN_PIN, op: 'sortear' });
-  const r = await call('admin', { adminPin: ADMIN_PIN, op: 'apagar', id: 'antigo-1' });
+  const r = await call('admin', { adminPin: ADMIN_PIN, op: 'apagar', id });
   assert.equal(r.body.sorteados, 0);
+  assert.ok(!(await call('lista')).body.pessoas.some((p) => p.id === id));
   assert.equal((await call('lista')).body.sorteioFeito, false);
 });
 

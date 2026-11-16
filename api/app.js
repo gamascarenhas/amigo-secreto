@@ -34,7 +34,7 @@ async function pessoas() {
 }
 
 const txt = (v, max) => String(v ?? '').trim().slice(0, max);
-const semPin = ({ pin, pinHash, ...p }) => p;
+const semPin = ({ pinHash, ...p }) => p;
 const chaveNome = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 const temDica = (d) => !!(d.camisa || d.calcaNum || d.calcaLetra || d.sapato || String(d.sugestoes || '').trim().length >= TAMANHO_MINIMO_DICA);
 
@@ -48,19 +48,13 @@ const hmac = (rotulo, texto) => createHmac('sha256', segredo()).update(`${rotulo
 
 const tokenFamilia = (pin) => hmac('familia', pin).toString('hex');
 
-export const pinHash =(id, pin) => hmac('pin', `${id}:${pin}`).toString('base64');
+const pinHash = (id, pin) => hmac('pin', `${id}:${pin}`).toString('base64');
 
 function pinConfere(p, pin) {
-  if (!p) return false;
-  if (!p.pinHash) return p.pin === String(pin);
+  if (!p?.pinHash) return false;
   const salvo = Buffer.from(p.pinHash, 'base64');
   const digitado = Buffer.from(pinHash(p.id, pin), 'base64');
   return salvo.length === digitado.length && timingSafeEqual(salvo, digitado);
-}
-
-function comPinSeguro(p, pin) {
-  const { pin: _antigo, ...resto } = p;
-  return { ...resto, pinHash: pinHash(p.id, pin) };
 }
 
 const chaveSorteio = () => hmac('sorteio', 'chave');
@@ -133,8 +127,7 @@ function validarPinNovo(pin, familyPin) {
   if (/^(\d)\1{3}$/.test(pin)) throw new HttpErr(400, 'PIN com 4 números iguais não vale. Escolha outro.');
 }
 
-async function amigoDe(p, lista) {
-  const cifrado = await redis('HGET', 'sorteio', p.id);
+function amigoDe(p, lista, cifrado) {
   if (!cifrado) return null;
   let amigoId = null;
   try {
@@ -170,11 +163,10 @@ const acoes = {
   },
 
   async entrar({ b, conferePin }) {
-    const lista = await pessoas();
+    const [lista, cifrado] = await Promise.all([pessoas(), redis('HGET', 'sorteio', String(b.id))]);
     const p = lista.find((x) => x.id === b.id);
     await conferePin(pinConfere(p, b.pin));
-    if (!p.pinHash) await redis('HSET', 'pessoas', p.id, JSON.stringify(comPinSeguro(p, b.pin)));
-    return { pessoa: semPin(p), amigo: await amigoDe(p, lista) };
+    return { pessoa: semPin(p), amigo: amigoDe(p, lista, cifrado) };
   },
 
   async salvar({ b, conferePin, familyPin }) {
@@ -184,7 +176,6 @@ const acoes = {
     if (b.id) {
       p = lista.find((x) => x.id === b.id);
       await conferePin(pinConfere(p, b.pin));
-      p = comPinSeguro(p, b.pin);
     } else {
       validarPinNovo(String(b.pin), familyPin);
       const id = randomUUID();

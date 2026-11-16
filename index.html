@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root { --red: #D0161E; --ink: #111; --muted: #5f5f5f; --bg: #fff; --line: #e6e6e6; --chip: #f2f2f2; --campo: #f6f6f6; }
   * { box-sizing: border-box; }
@@ -119,8 +119,8 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
   .card h3 { margin: 0; font-size: 1.2rem; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { background: var(--chip); border-radius: 999px; padding: 3px 12px; font-size: .85rem; font-weight: 600; }
+  .chips { display: flex; gap: 4px; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 3px 9px; font-size: clamp(.68rem, 3.3vw, .85rem); font-weight: 600; white-space: nowrap; }
   .card p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .rot { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
 
@@ -131,10 +131,14 @@
   .ceu.fundo { position: fixed; inset: 0; z-index: 50; height: auto; clip-path: inset(100%); pointer-events: none; }
   .ceu.fundo.aberto { clip-path: none; }
   .ceu.fundo svg { filter: blur(5px); }
+  .ceu.fundo:not(.aberto) svg { animation: none; }
   .ceu.fundo::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .25); }
   .linha { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; }
   input[type=date], input[type=time] { -webkit-appearance: none; appearance: none; min-width: 0; min-height: 52px; text-align: left; }
   ::-webkit-date-and-time-value { text-align: left; }
+  .data { position: relative; }
+  .data input { color: transparent; }
+  .data span { position: absolute; left: 0; bottom: 0; height: 52px; padding: 0 16px; display: flex; align-items: center; pointer-events: none; }
   .msg:empty { display: none; }
   .fechar-x { position: sticky; top: 0; float: right; z-index: 1; width: 40px; height: 40px; padding: 0; margin: -8px -8px 0 12px; display: grid; place-items: center; border-radius: 50%; background: var(--chip); color: var(--ink); font-size: 1.1rem; }
   .fechar-x:hover { background: #e2e2e2; }
@@ -332,7 +336,7 @@
     <form id="eventoForm">
       <h3>A festa</h3>
       <div class="linha">
-        <div><label for="e-dia">Dia</label><input type="date" id="e-dia" name="dia"></div>
+        <div class="data"><label for="e-dia">Dia</label><input type="date" id="e-dia" name="dia"><span id="e-dia-txt" aria-hidden="true"></span></div>
         <div><label for="e-hora">Horário</label><input type="time" id="e-hora" name="hora"></div>
       </div>
       <label for="e-local">Onde?</label>
@@ -405,6 +409,7 @@ let amigoAtual = null;
 let pinTocado = false;
 let dicaTocada = false;
 let ceuPendente = 0;
+let amigoPromessa = Promise.resolve(null);
 
 async function api(a, body = {}) {
   const r = await fetch('/api/app?a=' + a, {
@@ -489,8 +494,9 @@ const pintarSapato = () => {
   for (const o of $('f-sapato').options) if (o.value) o.textContent = rotuloSapato(o.value, $('f-sapatoDuplo').checked);
 };
 $('f-sapatoDuplo').addEventListener('change', pintarSapato);
-const quando = ({ dia, hora, data }) => {
-  if (!dia && !hora) return data;
+const pintarDia = () => { $('e-dia-txt').textContent = $('e-dia').value.split('-').reverse().join('/'); };
+$('e-dia').addEventListener('input', pintarDia);
+const quando = ({ dia, hora }) => {
   const [, m, d] = (dia || '').split('-');
   const [h, min] = (hora || '').split(':');
   return [dia && `${d}/${m}`, hora && `às ${+h}h${min === '00' ? '' : min}`].filter(Boolean).join(' ');
@@ -508,11 +514,13 @@ const tela = (qual) => {
   pintarCeu();
 };
 
-async function carregar() {
+async function carregar(amigo) {
   dados = await api('lista');
   const eu = ler('eu');
   euPessoa = eu && dados.pessoas.find((p) => p.id === eu.id);
   if (!euPessoa) return mostrarQuem();
+  amigoPromessa = amigo !== undefined || !dados.sorteioFeito ? Promise.resolve(amigo ?? null) : api('entrar', eu).then((r) => r.amigo);
+  amigoPromessa.catch(() => {});
   tela('app');
   render();
 }
@@ -710,22 +718,18 @@ $('pinForm').addEventListener('submit', async (e) => {
   const pin = $('pessoaPin').value;
   const id = $('perfilSel').value;
   try {
-    await api('entrar', { id, pin });
+    const { amigo } = await api('entrar', { id, pin });
     lembrar(id, pin);
-    await carregar();
+    await carregar(amigo);
   } catch (err) {
     $('pinErro').textContent = err.message;
   }
 });
 
-$('btnPerfil').addEventListener('click', async () => {
+$('btnPerfil').addEventListener('click', () => {
   const eu = ler('eu');
-  try {
-    const r = await api('entrar', eu);
-    abrirForm(r.pessoa, eu.pin);
-  } catch {
-    mostrarQuem();
-  }
+  if (!eu) return mostrarQuem();
+  abrirForm(euPessoa, eu.pin);
 });
 
 function esconderAmigo(sim) {
@@ -744,9 +748,8 @@ function esconderAmigo(sim) {
 $('btnOlho').addEventListener('click', () => esconderAmigo($('btnOlho').getAttribute('aria-pressed') === 'true'));
 
 $('btnAmigo').addEventListener('click', async () => {
-  const eu = ler('eu');
   try {
-    amigoAtual = (await api('entrar', eu)).amigo;
+    amigoAtual = await amigoPromessa.catch(() => (amigoPromessa = api('entrar', ler('eu')).then((r) => r.amigo)));
   } catch {
     return mostrarQuem();
   }
@@ -768,6 +771,7 @@ async function admin(op, extra = {}) {
 function preencherAdmin() {
   const evento = dados.evento || {};
   for (const k of ['dia', 'hora', 'local']) $('eventoForm').elements[k].value = evento[k] || '';
+  pintarDia();
   $('e-valor').value = String(evento.valor || '').replace(/\D/g, '');
   $('apagarSel').innerHTML = dados.pessoas.map((p) => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('');
 }
@@ -877,6 +881,7 @@ $('btnApagar').addEventListener('click', acao('apagarMsg', async () => {
 }));
 
 carregar().catch((err) => { if ($('lock').hidden) alert(err.message); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('app').hidden && !document.querySelector('dialog[open]')) carregar().catch(() => {}); });
 </script>
 </body>
 </html>
